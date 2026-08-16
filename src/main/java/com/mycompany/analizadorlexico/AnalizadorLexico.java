@@ -41,6 +41,14 @@ public class AnalizadorLexico {
                 manejarDelimitador(c);
             } else if (esOperadorOConector(c)) {
                 manejarOperadores(c);
+            } else if (esLetraOGuionBajo(c)) {
+                manejarPalabra();
+            } else if (esComilla(c)) {
+                manejarCadena();
+            } else if (esDirectiva(c)) {   
+                manejarDirectiva();
+            } else if (esNumero(c)) {     
+                manejarNumero();    
             } else {
                 manejarError(c);
             }
@@ -67,6 +75,22 @@ public class AnalizadorLexico {
     private boolean esOperadorOConector(char c) {
         return c == '=' || c == '+' || c == '-';
     }
+    
+    private boolean esLetraOGuionBajo(char c) {
+        return Character.isLetter(c) || c == '_';
+    }
+    
+    private boolean esComilla(char c) {
+        return c == '"';
+    }
+    
+    private boolean esDirectiva(char c) {
+        return c == '@';
+    }
+
+    private boolean esNumero(char c) {
+        return Character.isDigit(c);
+    }
 
 
     
@@ -83,6 +107,7 @@ public class AnalizadorLexico {
         i++;
     }
 
+    
     private void manejarDelimitador(char c) {
         if (c == '{') {
             listaTokens.add(new Token(contadorTokens++, "{", TipoToken.LLAVE_ABRE, fila, columna));
@@ -111,8 +136,8 @@ public class AnalizadorLexico {
             //Manejo del conector flecha por ser simbolo
             if (i + 1 < caracteres.length && caracteres[i + 1] == '>') {
                 listaTokens.add(new Token(contadorTokens++, "->", TipoToken.CONECTOR_FLECHA, fila, columna));
-                columna += 2; 
-                i += 2;       
+                columna = columna + 2; 
+                i = i + 2;       
             } else {
                 listaErrores.add(new ErrorLexico("-", "Guion suelto no reconocido (se esperaba '->')", fila, columna));
                 columna++; i++;
@@ -120,13 +145,150 @@ public class AnalizadorLexico {
         }
     }
 
-    //Metodo para los errores
+
+    private void manejarPalabra() {
+        //Armar la palabra letra por letra, termina cuando la siguiente letra no cumple con las condiciones
+        String lexema = "";
+        int colInicial = columna; 
+        while (i < caracteres.length && (Character.isLetter(caracteres[i]) || Character.isDigit(caracteres[i]) || caracteres[i] == '_')) {
+            lexema = lexema + caracteres[i];
+            columna++;
+            i++;
+        }
+
+        //Con la palabra armada se verifica que tipo de token es
+        TipoToken tipo = clasificarPalabra(lexema);
+        
+        listaTokens.add(new Token(contadorTokens++, lexema, tipo, fila, colInicial));
+    }
+    
+    
+    private TipoToken clasificarPalabra(String lexema) {
+        switch (lexema) {
+            // Palabras reservadas
+            case "AGENTE": return TipoToken.RESERVADA_AGENTE;
+            case "contexto": return TipoToken.RESERVADA_CONTEXTO;
+            case "variable": return TipoToken.RESERVADA_VARIABLE;
+            case "EJECUTAR": return TipoToken.RESERVADA_EJECUTAR;
+            case "EXPORTAR": return TipoToken.RESERVADA_EXPORTAR;
+            
+            // Comandos de IA
+            case "PREGUNTAR": return TipoToken.COMANDO_PREGUNTAR;
+            case "GENERAR": return TipoToken.COMANDO_GENERAR;
+            case "RESUMIR": return TipoToken.COMANDO_RESUMIR;
+            case "ANALIZAR": return TipoToken.COMANDO_ANALIZAR;
+            case "TRADUCIR": return TipoToken.COMANDO_TRADUCIR;
+            case "CLASIFICAR": return TipoToken.COMANDO_CLASIFICAR;
+            case "EXTRAER": return TipoToken.COMANDO_EXTRAER;
+            
+            // Funciones
+            case "CARGAR": return TipoToken.FUNCION_CARGAR;
+            
+            // Conectores
+            case "SOBRE": return TipoToken.CONECTOR_SOBRE;
+            case "DESDE": return TipoToken.CONECTOR_DESDE;
+            case "EN": return TipoToken.CONECTOR_EN;
+            case "COMO": return TipoToken.CONECTOR_COMO;
+            
+            default: return TipoToken.IDENTIFICADOR;
+        }
+    }
+    
+    private void manejarCadena() {
+        String lexema = "\""; 
+        int colInicial = columna;       
+        columna++;
+        i++; 
+
+        //Se arma el lexema caracter por caracter hasta encontrar la siguiente comilla
+        while (i < caracteres.length && caracteres[i] != '"') {
+            lexema = lexema + caracteres[i];          
+            if (caracteres[i] == '\n') {
+                fila++;
+                columna = 1;
+            } else {
+                columna++;
+            }
+            i++;
+        }
+
+        //Si el caracter final fue una comilla 
+        if (i < caracteres.length && caracteres[i] == '"') {
+            lexema = lexema + '"';
+            listaTokens.add(new Token(contadorTokens++, lexema, TipoToken.LITERAL_CADENA, fila, colInicial));
+            columna++;
+            i++;
+        //Si no es un error    
+        } else {
+            listaErrores.add(new ErrorLexico(lexema, "Cadena de texto sin cerrar", fila, colInicial));
+        }
+    }
+    
+    
+    private void manejarDirectiva() {
+        String lexema = "@";
+        int colInicial = columna;       
+        columna++;
+        i++;
+        
+        //Armar la palabra caracter por caracter si cumple con las condiciones 
+        while (i < caracteres.length && (Character.isLetter(caracteres[i]) || Character.isDigit(caracteres[i]) || caracteres[i] == '_')) {
+            lexema = lexema + caracteres[i];
+            columna++;
+            i++;
+        }
+
+        //Verificar si es uno de los 3 tipos validos
+        TipoToken tipo;
+        switch (lexema) {
+            case "@modelo": tipo = TipoToken.DIRECTIVA_MODELO; 
+            break;
+            case "@rol": tipo = TipoToken.DIRECTIVA_ROL;
+            break;
+            case "@formato": tipo = TipoToken.DIRECTIVA_FORMATO;
+            break;
+            default:
+                //Si no es ninguno se guarda como error
+                listaErrores.add(new ErrorLexico(lexema, "Directiva no reconocida", fila, colInicial));
+                return; 
+        }
+
+        listaTokens.add(new Token(contadorTokens++, lexema, tipo, fila, colInicial));
+    }
+
+    
+    private void manejarNumero() {
+        String lexema = "";
+        int colInicial = columna;
+        boolean tienePunto = false;
+        //Arma el numero numero por numero si cumple las condiciones
+        while (i < caracteres.length && (Character.isDigit(caracteres[i]) || caracteres[i] == '.')) {
+            //Si es un punto verifica si ya habia uno antes
+            if (caracteres[i] == '.') {
+                //Si hay corta el numero
+                if (tienePunto) {
+                    break; 
+                }
+                //Si no ponemos la bandera
+                tienePunto = true;
+            }
+            lexema = lexema + caracteres[i];
+            columna++;
+            i++;
+        }
+
+        TipoToken tipo = tienePunto ? TipoToken.LITERAL_DECIMAL : TipoToken.LITERAL_ENTERO;
+        
+        listaTokens.add(new Token(contadorTokens++, lexema, tipo, fila, colInicial));
+    }
+    
+
+        //Metodo para los errores
     private void manejarError(char c) {
-        listaErrores.add(new ErrorLexico(String.valueOf(c), "Carácter no reconocido", fila, columna));
+        listaErrores.add(new ErrorLexico(String.valueOf(c), "Caracter no reconocido", fila, columna));
         columna++;
         i++;
     }
-
     
     
     //Metodo para imprimir los resultados
