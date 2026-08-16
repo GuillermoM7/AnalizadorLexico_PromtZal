@@ -10,5 +10,5 @@
         <maven.compiler.release>25</maven.compiler.release>
         <exec.mainClass>com.mycompany.anlizadorlexico.AnlizadorLexico</exec.mainClass>
     </properties>
-    <name>AnlizadorLexico</name>
+    <name>AnalizadorLexico</name>
 </project>

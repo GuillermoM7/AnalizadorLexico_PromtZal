@@ -1,4 +1,4 @@
-package com.mycompany.anlizadorlexico.modelos;
+package com.mycompany.analizadorlexico.modelos;
 
 public enum TipoToken {
     //Directivas
