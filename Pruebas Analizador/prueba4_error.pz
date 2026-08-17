@@ -1,0 +1,14 @@
+@modelo "claude-sonnet-4-6"
+
+AGENTE bot_defectuoso {
+    contexto = "Asistente de ventas"
+    
+    variable costo = $100.50
+    variable descuento = 20%
+    variable saludo = ¿Como estas?
+    
+    PREGUNTAR saludo SOBRE costo -> respuesta
+}
+
+EJECUTAR bot_defectuoso
+EXPORTAR respuesta

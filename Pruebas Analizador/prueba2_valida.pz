@@ -1,0 +1,16 @@
+@modelo "claude-3-opus"
+@rol "Asistente Financiero"
+
+// Agente encargado de calcular promedios de ventas
+AGENTE calculador {
+    variable meta_mensual = 15000.50
+    variable dias_habiles = 22
+    
+    variable base_datos = CARGAR ( "ventas_agosto.csv" )
+    
+    ANALIZAR base_datos SOBRE "rendimiento" -> reporte_ventas
+    GENERAR conclusiones DESDE reporte_ventas + " en tono formal" -> resumen
+}
+
+EJECUTAR calculador
+EXPORTAR resumen

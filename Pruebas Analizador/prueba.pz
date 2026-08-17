@@ -1,0 +1,30 @@
+@modelo "claude-3-opus"
+@rol "Asistente de Restaurante y Nomina"
+@formato "JSON"
+
+AGENTE mesero_bot {
+    contexto = "Gestion de mesas y calculos de pago"
+    
+    variable total_mesas = 20
+    variable porcentaje_propina = 12.5
+    
+    variable base_datos = CARGAR ( "restaurante_db.sql" )
+    
+    EJECUTAR -> ANALIZAR SOBRE base_datos COMO "reporte_mensual"
+    
+    PREGUNTAR EN contexto -> "Cual es el calculo automatico de la nomina para el mesero 1?"
+    
+    EXPORTAR base_datos + "respaldos"
+    
+    # Esto es un error lexico intencional
+    $ Y este tambien
+}
+
+// Este es un comentario de linea, no debe generar tokens
+@modelo "claude-3-opus"
+
+/* 
+   Este es un comentario de bloque
+   Tampoco debe generar tokens ni afectar las filas
+*/
+AGENTE prueba { }

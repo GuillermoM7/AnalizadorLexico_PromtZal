@@ -3,6 +3,7 @@ package com.mycompany.analizadorlexico;
 import com.mycompany.analizadorlexico.modelos.Token;
 import com.mycompany.analizadorlexico.modelos.ErrorLexico;
 import com.mycompany.analizadorlexico.modelos.TipoToken;
+import com.mycompany.analizadorlexico.reportes.GeneradorReportes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,26 +36,31 @@ public class AnalizadorLexico {
             char c = caracteres[i];
             
             //Consulta uno por uno el tipo de token por medio de metodos
-            if (esEspacioOSalto(c)) {
+            if (esEspacioOSalto(c)){
                 manejarEspacios(c);
-            } else if (esDelimitador(c)) {
+            } else if (esDelimitador(c)){
                 manejarDelimitador(c);
-            } else if (esOperadorOConector(c)) {
+            } else if (esOperadorOConector(c)){
                 manejarOperadores(c);
-            } else if (esLetraOGuionBajo(c)) {
+            } else if (esLetraOGuionBajo(c)){
                 manejarPalabra();
-            } else if (esComilla(c)) {
+            } else if (esComilla(c)){
                 manejarCadena();
-            } else if (esDirectiva(c)) {   
+            } else if (esDirectiva(c)){   
                 manejarDirectiva();
-            } else if (esNumero(c)) {     
+            } else if (esNumero(c)){     
                 manejarNumero();    
+            } else if (esInicioComentario(c)){ 
+                manejarComentario();
             } else {
                 manejarError(c);
             }
         }
-        //Final del while se imprime la tabla
+        //Final del while se imprime la tabla en consola y se crean los reportes HTML
         imprimirResultados();
+        GeneradorReportes reportador = new GeneradorReportes();
+        reportador.generarReporteTokens(this.listaTokens);
+        reportador.generarReporteErrores(this.listaErrores);
     }
 
 
@@ -90,6 +96,10 @@ public class AnalizadorLexico {
 
     private boolean esNumero(char c) {
         return Character.isDigit(c);
+    }
+    
+    private boolean esInicioComentario(char c) {
+        return c == '/';
     }
 
 
@@ -280,6 +290,62 @@ public class AnalizadorLexico {
         TipoToken tipo = tienePunto ? TipoToken.LITERAL_DECIMAL : TipoToken.LITERAL_ENTERO;
         
         listaTokens.add(new Token(contadorTokens++, lexema, tipo, fila, colInicial));
+    }
+    
+    
+    private void manejarComentario() {
+        //Verificar que no sea el ultimo
+        if (i + 1 < caracteres.length) {
+            char siguiente = caracteres[i + 1];
+            //si es otro / es un comentario 
+            if (siguiente == '/') {
+                i = i + 2;
+                columna = columna + 2;
+                //leer caracter por caracter hasta el salto de linea
+                while (i < caracteres.length && caracteres[i] != '\n') {
+                    i++;
+                    columna++;
+                }
+                return; 
+            } 
+            
+            //Si es * es un cometario de bloque
+            else if (siguiente == '*') {
+                int filaInicial = fila;
+                int colInicial = columna;               
+                i = i + 2;      
+                columna += 2;
+                boolean cerrado = false;
+
+                while (i < caracteres.length) {
+                    if (caracteres[i] == '\n') {
+                        fila++;
+                        columna = 1;
+                        i++;
+                    } 
+                    //Si se encuentra el cierre se activa la bandera 
+                    else if (caracteres[i] == '*' && i + 1 < caracteres.length && caracteres[i + 1] == '/') {
+                        i = i + 2;
+                        columna = columna + 2;
+                        cerrado = true;
+                        break;
+                    } 
+                    else {
+                        columna++;
+                        i++;
+                    }
+                }
+                //Si no hay cierre es un error
+                if (!cerrado) {
+                    listaErrores.add(new ErrorLexico("/*", "Comentario de bloque sin cerrar", filaInicial, colInicial));
+                }
+                return;
+            }
+        }
+        //Si no es ninguno de los 2 tipos de comentarios es un error
+        listaErrores.add(new ErrorLexico("/", "Carácter no reconocido (se esperaba '//' o '/*')", fila, columna));
+        columna++;
+        i++;
     }
     
 

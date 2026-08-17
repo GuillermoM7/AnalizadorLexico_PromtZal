@@ -1,0 +1,12 @@
+@modelo_falso "claude-3-opus"
+
+AGENTE prueba_errores {
+    variable x = 10
+    variable y = 20
+    
+    RESUMIR x EN 5 palabras - resultado 
+    
+    /* Este comentario de bloque nunca se cierra
+       y generara un error al llegar al final del archivo
+    
+    EXPORTAR resultado

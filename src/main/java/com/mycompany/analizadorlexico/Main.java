@@ -14,9 +14,9 @@ public class Main {
         System.out.println("======================================");
         System.out.println("   Analizador Lexico - PromptZal");
         System.out.println("======================================");
-        System.out.print("Ingresa la ruta absoluta del archivo .pz: ");
-        
+        System.out.print("Ingresa la ruta absoluta del archivo .pz: ");        
         String rutaArchivo = entrada.nextLine();
+        rutaArchivo = rutaArchivo.replace("\"", "");
         
         try {
             Path rutaConvertida = Paths.get(rutaArchivo);

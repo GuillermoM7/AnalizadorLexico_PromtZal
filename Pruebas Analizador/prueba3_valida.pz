@@ -1,0 +1,19 @@
+@modelo "gpt-4o"
+@rol "Desarrollador Senior"
+@formato "markdown"
+
+/* 
+   Este agente revisa vulnerabilidades en el código
+   y clasifica los riesgos encontrados.
+*/
+AGENTE revisor_codigo {
+    contexto = "Revisas codigo buscando errores y vulnerabilidades"
+    variable archivo_fuente = CARGAR ( "Main.java" )
+    
+    PREGUNTAR "Existen vulnerabilidades de seguridad?" SOBRE archivo_fuente -> analisis
+    CLASIFICAR analisis EN "Critico, Moderado, Leve" -> nivel_riesgo
+    RESUMIR analisis EN 50 palabras -> resumen_ejecutivo
+}
+
+EJECUTAR revisor_codigo
+EXPORTAR nivel_riesgo, resumen_ejecutivo
