@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnalizadorLexico {
+    
+    public static final String RESET = "\033[0m";
+    public static final String VERDE = "\033[32m";
+    public static final String ROJO = "\033[31m";
+    public static final String CELESTE = "\u001B[36m";
+    
 
     private List<Token> listaTokens;
     private List<ErrorLexico> listaErrores;
@@ -359,18 +365,20 @@ public class AnalizadorLexico {
     
     //Metodo para imprimir los resultados
     private void imprimirResultados() {
-        System.out.println("\n--- TOKENS ENCONTRADOS ---");
+        System.out.println(CELESTE + "\n--- TOKENS ENCONTRADOS ---");
         for (Token t : listaTokens) {
             System.out.println(t.toString());
         }
+        System.out.println(RESET);
 
-        System.out.println("\n--- ERRORES ENCONTRADOS ---");
+        System.out.println(ROJO + "\n--- ERRORES ENCONTRADOS ---");
         if (listaErrores.isEmpty()) {
-            System.out.println("No se encontraron errores léxicos.");
+            System.out.println(CELESTE + "No se encontraron errores léxicos.");
         } else {
             for (ErrorLexico e : listaErrores) {
                 System.out.println(e.toString());
             }
+            System.out.println(RESET);
         }
     }
 }
