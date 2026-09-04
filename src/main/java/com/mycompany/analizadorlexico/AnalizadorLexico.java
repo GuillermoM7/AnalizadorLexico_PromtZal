@@ -30,7 +30,14 @@ public class AnalizadorLexico {
         this.contadorTokens = 1;
     }
 
-   
+   public void analizarTexto(String texto) {
+        this.caracteres = texto.toCharArray();
+        this.listaTokens.clear();
+        this.listaErrores.clear();
+    
+
+        analizar(caracteres); 
+    }
     
     public void analizar(char[] entrada) {
         this.caracteres = entrada;
@@ -381,4 +388,13 @@ public class AnalizadorLexico {
             System.out.println(RESET);
         }
     }
+
+    public List<Token> getListaTokens() {
+        return listaTokens;
+    }
+
+    public List<ErrorLexico> getListaErrores() {
+        return listaErrores;
+    }
+           
 }
