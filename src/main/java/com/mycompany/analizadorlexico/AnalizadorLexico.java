@@ -69,19 +69,11 @@ public class AnalizadorLexico {
                 manejarError(c);
             }
         }
-        //Final del while se imprime la tabla en consola y se crean los reportes HTML
-        imprimirResultados();
-        GeneradorReportes reportador = new GeneradorReportes();
-        reportador.generarReporteTokens(this.listaTokens);
-        reportador.generarReporteErrores(this.listaErrores);
     }
 
 
     
-    
-    
-    
-    
+        
     //Consultas
     private boolean esEspacioOSalto(char c) {
         return c == '\n' || c == ' ' || c == '\t' || c == '\r';
@@ -224,14 +216,12 @@ public class AnalizadorLexico {
         i++; 
 
         //Se arma el lexema caracter por caracter hasta encontrar la siguiente comilla
-        while (i < caracteres.length && caracteres[i] != '"') {
-            lexema = lexema + caracteres[i];          
+        while (i < caracteres.length && caracteres[i] != '"') {        
             if (caracteres[i] == '\n') {
-                fila++;
-                columna = 1;
-            } else {
-                columna++;
-            }
+                break;
+            } 
+            lexema = lexema + caracteres[i];          
+            columna++;
             i++;
         }
 

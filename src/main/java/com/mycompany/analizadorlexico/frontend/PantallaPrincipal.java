@@ -3,9 +3,12 @@ package com.mycompany.analizadorlexico.frontend;
 import com.mycompany.analizadorlexico.AnalizadorLexico;
 import com.mycompany.analizadorlexico.modelos.ErrorLexico;
 import com.mycompany.analizadorlexico.modelos.Token;
+import com.mycompany.analizadorlexico.reportes.GeneradorReportes;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -13,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 public class PantallaPrincipal extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PantallaPrincipal.class.getName());
+    private AnalizadorLexico analizador;
 
     public PantallaPrincipal() {
         initComponents();
@@ -44,8 +48,10 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         btnAbrir.addActionListener(this::btnAbrirActionPerformed);
 
         btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
         btnAFD.setText("Ver AFD");
+        btnAFD.addActionListener(this::btnAFDActionPerformed);
 
         btnReportes.setText("Reportes");
         btnReportes.addActionListener(this::btnReportesActionPerformed);
@@ -116,9 +122,9 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(31, 31, 31)
+                .addContainerGap()
                 .addComponent(btnAbrir)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(btnAnalizar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnGuardar)
@@ -162,7 +168,20 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     
     
     private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
-        // TODO add your handling code here:
+
+        if (analizador == null || analizador.getListaTokens().isEmpty() && analizador.getListaErrores().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Primero debes analizar un código para generar reportes.", "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        GeneradorReportes reportador = new GeneradorReportes();
+
+        reportador.generarReporteTokens(analizador.getListaTokens());
+        reportador.generarReporteErrores(analizador.getListaErrores());
+        reportador.generarReporteEstadisticas(analizador.getListaTokens(), analizador.getListaErrores());
+
+        javax.swing.JOptionPane.showMessageDialog(this, "¡Los 3 reportes HTML se generaron exitosamente en la carpeta del proyecto!");
+        
     }//GEN-LAST:event_btnReportesActionPerformed
 
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
@@ -172,15 +191,13 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "El editor está vacío. Escribe o abre un archivo .pz primero.");
             return;
         }
-
         
         DefaultTableModel modeloTokens = (DefaultTableModel) tablaToken.getModel();
         DefaultTableModel modeloErrores = (DefaultTableModel) tablaError.getModel();
         modeloTokens.setRowCount(0);
         modeloErrores.setRowCount(0);
 
-
-        AnalizadorLexico analizador = new AnalizadorLexico();
+        analizador = new AnalizadorLexico();
         analizador.analizarTexto(codigoFuente); 
 
         for (Token t : analizador.getListaTokens()) {
@@ -226,14 +243,46 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAbrirActionPerformed
 
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Guardar archivo PromptZal");
+
+        javax.swing.filechooser.FileNameExtensionFilter filtro = new javax.swing.filechooser.FileNameExtensionFilter("Archivos PromptZal (*.pz)", "pz");
+        selector.setFileFilter(filtro);
+
+        int respuesta = selector.showSaveDialog(this);
+
+        if (respuesta == JFileChooser.APPROVE_OPTION) {
+            File archivo = selector.getSelectedFile();
+
+            if (!archivo.getName().toLowerCase().endsWith(".pz")) {
+                archivo = new File(archivo.getAbsolutePath() + ".pz");
+            }
+    
+            try {
+                BufferedWriter escritor = new BufferedWriter(new FileWriter(archivo));
+                escritor.write(txtArchivo.getText()); 
+                escritor.close();
+        
+                javax.swing.JOptionPane.showMessageDialog(this, "Archivo guardado exitosamente.");
+        
+            } catch (Exception ex) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + ex.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnAFDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAFDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAFDActionPerformed
+
     
     
     
     
     
-    /**
-     * @param args the command line arguments
-     */
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
