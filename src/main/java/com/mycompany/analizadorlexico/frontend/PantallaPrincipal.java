@@ -3,14 +3,18 @@ package com.mycompany.analizadorlexico.frontend;
 import com.mycompany.analizadorlexico.AnalizadorLexico;
 import com.mycompany.analizadorlexico.modelos.ErrorLexico;
 import com.mycompany.analizadorlexico.modelos.Token;
+import com.mycompany.analizadorlexico.reportes.GeneradorGrafo;
 import com.mycompany.analizadorlexico.reportes.GeneradorReportes;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
 
 public class PantallaPrincipal extends javax.swing.JFrame {
@@ -165,8 +169,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    
+      
     private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
 
         if (analizador == null || analizador.getListaTokens().isEmpty() && analizador.getListaErrores().isEmpty()) {
@@ -184,6 +187,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnReportesActionPerformed
 
+    
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         String codigoFuente = txtArchivo.getText();
 
@@ -212,6 +216,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Análisis finalizado con éxito.");
     }//GEN-LAST:event_btnAnalizarActionPerformed
 
+    
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
 
         JFileChooser selector = new JFileChooser();
@@ -243,6 +248,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAbrirActionPerformed
 
+    
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
 
         JFileChooser selector = new JFileChooser();
@@ -273,16 +279,29 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
+    
     private void btnAFDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAFDActionPerformed
-        // TODO add your handling code here:
+ 
+        GeneradorGrafo graficador = new GeneradorGrafo();
+        graficador.generarGrafoGraphviz();
+
+        File archivoImagen = new File("automata.png");
+
+        if (archivoImagen.exists()) {
+            ImageIcon icono = new ImageIcon(archivoImagen.getAbsolutePath());
+            JLabel etiquetaImagen = new JLabel(icono);
+            JScrollPane scroll = new JScrollPane(etiquetaImagen);
+            scroll.setPreferredSize(new java.awt.Dimension(800, 500));
+    
+            javax.swing.JOptionPane.showMessageDialog(this, scroll, "Autómata Finito Determinista (AFD)", javax.swing.JOptionPane.PLAIN_MESSAGE);
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "La imagen no se generó. Verifica la instalación de Graphviz.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAFDActionPerformed
 
     
     
     
-    
-    
-
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

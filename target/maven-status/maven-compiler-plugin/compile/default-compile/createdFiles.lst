@@ -2,6 +2,7 @@ com\mycompany\analizadorlexico\Main.class
 com\mycompany\analizadorlexico\frontend\PantallaPrincipal.class
 com\mycompany\analizadorlexico\modelos\TipoToken.class
 com\mycompany\analizadorlexico\modelos\ErrorLexico.class
+com\mycompany\analizadorlexico\reportes\GeneradorGrafo.class
 com\mycompany\analizadorlexico\modelos\Token.class
 com\mycompany\analizadorlexico\reportes\GeneradorReportes.class
 com\mycompany\analizadorlexico\AnalizadorLexico.class
