@@ -1,9 +1,22 @@
 digraph AFD {
-  rankdir=LR;
-  size="15,10";
+  // Configuración de espaciado y dirección (De arriba hacia abajo)
+  rankdir=TB;
+  nodesep=0.4;
+  ranksep=0.7;
+  
+  // Nodos de aceptación (Doble círculo azul)
   node [shape = doublecircle, style=filled, fillcolor=lightblue]; 
-  S1 S2 S4 S6 S8 S10 S13 S14 S16; // Estados de aceptación
-  node [shape = circle, style=solid, fillcolor=white]; 
+  S1 S2 S4 S6 S8 S10 S13 S14 S16;
+  
+  // Nodo de Error (Círculo rojo, texto blanco)
+  node [shape = circle, style=filled, fillcolor=red, fontcolor=white, color=darkred]; 
+  ERROR;
+  
+  // Nodos normales de transición (Círculo blanco)
+  node [shape = circle, style=solid, fillcolor=white, fontcolor=black]; 
+  
+  // 0. Ciclo de espacios en blanco
+  S0 -> S0 [label=" espacios (\n, \t, \r) "];
   
   // 1. Identificadores, Reservadas y Comandos
   S0 -> S1 [label=" letra | _ "];
@@ -15,22 +28,27 @@ digraph AFD {
   S2 -> S3 [label=" . "];
   S3 -> S4 [label=" dígito "];
   S4 -> S4 [label=" dígito "];
+  S3 -> ERROR [label=" distinto de dígito "];
   
-  // 3. Directivas (@modelo, @rol)
+  // 3. Directivas (@modelo, @rol, @formato)
   S0 -> S5 [label=" @ "];
-  S5 -> S6 [label=" letra "];
+  S5 -> S6 [label=" letra | dígito | _ "];
   S6 -> S6 [label=" letra | dígito | _ "];
+  S5 -> ERROR [label=" distinto de alfanumérico (ej. otro @) "];
+  S6 -> ERROR [label=" no coincide con @modelo, @rol o @formato "];
   
   // 4. Literales de Cadena
   S0 -> S7 [label=" \" "];
   S7 -> S7 [label=" cualquier carácter excepto \n y \" "];
   S7 -> S8 [label=" \" "];
+  S7 -> ERROR [label=" \n (Modo Pánico) "];
   
   // 5. Conector Flecha (->)
   S0 -> S15 [label=" - "];
   S15 -> S16 [label=" > "];
+  S15 -> ERROR [label=" distinto de > "];
   
-  // 6. Delimitadores y Operadores de un solo carácter
+  // 6. Delimitadores y Operadores
   S0 -> S14 [label=" { | } | ( | ) | , | = | + "];
   
   // 7. Comentarios de Línea y Bloque
@@ -41,4 +59,9 @@ digraph AFD {
   S11 -> S12 [label=" * "];
   S12 -> S11 [label=" distinto de / "];
   S12 -> S13 [label=" / "];
+  S9 -> ERROR [label=" distinto de / o * "];
+  S11 -> ERROR [label=" Fin de archivo (Bloque sin cerrar) "];
+  
+  // 8. Cualquier otro símbolo inválido al inicio (ej. $, &, ?)
+  S0 -> ERROR [label=" carácter no reconocido "];
 }

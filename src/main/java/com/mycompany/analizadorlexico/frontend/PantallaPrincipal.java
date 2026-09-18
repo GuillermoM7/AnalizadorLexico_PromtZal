@@ -10,11 +10,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
 
 public class PantallaPrincipal extends javax.swing.JFrame {
@@ -285,15 +282,24 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         GeneradorGrafo graficador = new GeneradorGrafo();
         graficador.generarGrafoGraphviz();
 
-        File archivoImagen = new File("automata.png");
+        java.io.File archivoImagen = new java.io.File("automata.png");
 
         if (archivoImagen.exists()) {
-            ImageIcon icono = new ImageIcon(archivoImagen.getAbsolutePath());
-            JLabel etiquetaImagen = new JLabel(icono);
-            JScrollPane scroll = new JScrollPane(etiquetaImagen);
-            scroll.setPreferredSize(new java.awt.Dimension(800, 500));
-    
-            javax.swing.JOptionPane.showMessageDialog(this, scroll, "Autómata Finito Determinista (AFD)", javax.swing.JOptionPane.PLAIN_MESSAGE);
+            javax.swing.ImageIcon icono = new javax.swing.ImageIcon(archivoImagen.getAbsolutePath());
+            javax.swing.JLabel etiquetaImagen = new javax.swing.JLabel(icono);
+            
+            javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(etiquetaImagen);
+            scroll.getVerticalScrollBar().setUnitIncrement(16);
+            scroll.getHorizontalScrollBar().setUnitIncrement(16);
+            
+            javax.swing.JDialog ventanaGrafo = new javax.swing.JDialog(this, "Autómata Finito Determinista (AFD)", true);
+            ventanaGrafo.add(scroll);
+            
+            ventanaGrafo.setSize(1000, 700); 
+            ventanaGrafo.setLocationRelativeTo(this); 
+            ventanaGrafo.setResizable(true); 
+            ventanaGrafo.setVisible(true); 
+            
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, "La imagen no se generó. Verifica la instalación de Graphviz.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
